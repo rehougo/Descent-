@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Abyss Planner: Descent into Knowledge</title>
+    <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --abyss-black: #0a0c0f;
+            --abyss-deep: #1a2a3a;
+            --abyss-mid: #2c4c5c;
+            --abyss-light: #3e6b7c;
+            --abyss-glow: #7fb4c0;
+            --abyss-gold: #c9a45b;
+            --abyss-cursed: #9e5f6b;
+            --abyss-panel: rgba(10, 20, 30, 0.85);
+            --abyss-card: rgba(20, 35, 45, 0.9);
+            --text-primary: #e6e9f0;
+            --text-secondary: #aab8c5;
+            --shadow-heavy: 0 10px 25px -5px rgba(0, 0, 0, 0.8);
+            --border-glow: 0 0 10px rgba(127, 180, 192, 0.3);
+        }
+
+        
+        @keyframes descend {
+            0% { opacity: 0; transform: translateY(-30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 5px var(--abyss-glow); }
+            50% { text-shadow: 0 0 20px var(--abyss-glow), 0 0 30px var(--abyss-mid); }
+        }
+
+        @keyframes abyss-ripple {
+            0% { box-shadow: 0 0 0 0 rgba(127, 180, 192, 0.3); }
+            70% { box-shadow: 0 0 0 15px rgba(127, 180, 192, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(127, 180, 192, 0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+       
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            margin: 0;
+            position: relative;
+            overflow-x: hidden;
+            background: url('fondo-pantalla.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+       
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+       
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, 
+                transparent, 
+                transparent 2px, 
+                rgba(0, 30, 40, 0.15) 3px,
+                transparent 4px);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+       
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--abyss-black);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+            backdrop-filter: blur(5px);
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-content {
+            text-align: center;
+            animation: descend 1.5s ease-out;
+            max-width: 90%;
+            position: relative;
+            z-index: 10000;
+        }
+
+        .logo-container {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 1.5rem;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--abyss-glow);
+            box-shadow: 0 0 30px rgba(127, 180, 192, 0.5);
+            animation: float 3s infinite ease-in-out;
+            background: var(--abyss-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        
+        .logo-fallback {
+            font-size: 4rem;
+            color: var(--abyss-glow);
+            display: none;
+        }
+
+        .loading-title {
+            font-size: 2.2rem;
+            font-weight: 300;
+            letter-spacing: 6px;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            animation: pulse-glow 2s infinite;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .loading-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--abyss-mid);
+            border-top: 4px solid var(--abyss-glow);
+            border-radius: 50%;
+            margin: 20px auto;
+            animation: spin 1.2s linear infinite;
+            box-shadow: var(--border-glow);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-progress {
+            width: 250px;
+            height: 4px;
+            background: var(--abyss-deep);
+            border-radius: 4px;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+
+        .loading-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--abyss-mid), var(--abyss-glow));
+            transition: width 0.3s ease;
+            border-radius: 4px;
+            box-shadow: 0 0 15px var(--abyss-glow);
+        }
+
+       
+        .app-container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+            animation: descend 1s ease-out 0.5s both;
+            background: var(--abyss-panel);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(127, 180, 192, 0.3);
+            border-radius: 36px 36px 24px 24px;
+            box-shadow: var(--shadow-heavy), inset 0 0 30px rgba(0, 40, 50, 0.3);
+            overflow: hidden;
+        }
+
+       
+        .abyss-header {
+            background: linear-gradient(135deg, rgba(10, 30, 40, 0.95), rgba(5, 15, 25, 0.98));
+            padding: 20px 24px;
+            border-bottom: 2px solid var(--abyss-mid);
+            position: relative;
+        }
+
+        .abyss-header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--abyss-glow), transparent);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .title-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .title-section h1 {
+            font-size: 1.6rem;
+            font-weight: 400;
+            color: var(--text-primary);
+            letter-spacing: 2px;
+        }
+
+        .title-section span {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 8px var(--abyss-glow));
+        }
+
+        .level-badge {
+            background: var(--abyss-card);
+            border: 1px solid var(--abyss-gold);
+            border-radius: 40px;
+            padding: 6px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 15px rgba(201, 164, 91, 0.2);
+        }
+
+        .level-number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--abyss-gold);
+        }
+
+        .level-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+    
+
+        .page-navigation {
+            display: flex;
+            padding: 16px 20px 0;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory;
+        }
+
+        .page-navigation::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .page-navigation::-webkit-scrollbar-thumb {
+            background: var(--abyss-glow);
+            border-radius: 10px;
+        }
+
+        .page-nav-item {
+            padding: 10px 20px;
+            background: var(--abyss-card);
+            border: 1px solid var(--abyss-mid);
+            border-radius: 30px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            scroll-snap-align: start;
+            backdrop-filter: blur(5px);
+            flex-shrink: 0;
+        }
+
+        .page-nav-item.active {
+            background: var(--abyss-mid);
+            color: var(--text-primary);
+            border-color: var(--abyss-glow);
+            box-shadow: var(--border-glow);
+        }
+
+        .page-nav-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--abyss-glow);
+        }
+
+       
+
+        .page {
+            display: none;
+            animation: descend 0.5s ease-out;
+        }
+
+        .page.active-page {
+            display: block;
+        }
+
+
+
+        .notification-area {
+            position: relative;
+            margin: 16px 20px 0;
+        }
+
+        .notification {
+            background: rgba(30, 20, 30, 0.95);
+            border-left: 6px solid var(--abyss-cursed);
+            border-radius: 16px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            animation: slideIn 0.5s ease-out;
+            border: 1px solid rgba(158, 95, 107, 0.3);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification-icon {
+            font-size: 2rem;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--abyss-cursed);
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .notification-message {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0 5px;
+            transition: color 0.3s;
+        }
+
+        .notification-close:hover {
+            color: var(--abyss-glow);
+        }
+
+        
+
+        .progress-section {
+            padding: 24px 20px 16px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background: var(--abyss-deep);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--abyss-mid);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--abyss-mid), var(--abyss-glow));
+            border-radius: 20px;
+            position: relative;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px var(--abyss-glow);
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+       
+
+        .layers-system {
+            padding: 0 20px 20px;
+        }
+
+        .layers-title {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .layers-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .layer-card {
+            background: var(--abyss-card);
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid rgba(127, 180, 192, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            animation: descend 0.5s ease-out backwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .layer-card:active {
+            transform: scale(0.98);
+        }
+
+        .layer-card.completed {
+            border-left: 6px solid var(--abyss-gold);
+            opacity: 0.9;
+        }
+
+        .layer-card.current {
+            border: 2px solid var(--abyss-glow);
+            animation: abyss-ripple 2s infinite;
+        }
+
+        .layer-depth {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--abyss-mid);
+            min-width: 50px;
+            text-align: center;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .layer-info {
+            flex: 1;
+        }
+
+        .layer-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            font-size: 1.1rem;
+        }
+
+        .layer-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .layer-status {
+            font-size: 1.5rem;
+        }
+
+       
+
+        .tasks-section {
+            padding: 16px 20px 24px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid var(--abyss-mid);
+        }
+
+        .tasks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .tasks-header h3 {
+            color: var(--text-primary);
+            font-weight: 400;
+        }
+
+        .add-task-btn {
+            background: var(--abyss-mid);
+            border: none;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--abyss-glow);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .add-task-btn:active {
+            transform: scale(0.9);
+        }
+
+        .task-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .task-item {
+            background: var(--abyss-card);
+            border-radius: 16px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid rgba(127, 180, 192, 0.1);
+            transition: all 0.2s;
+            animation: descend 0.4s ease-out;
+        }
+
+        .task-item.important {
+            border-left: 6px solid var(--abyss-cursed);
+            background: rgba(158, 95, 107, 0.15);
+        }
+
+        .task-item:active {
+            transform: scale(0.99);
+        }
+
+        .task-check {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--abyss-mid);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+            flex-shrink: 0;
+        }
+
+        .task-check:checked {
+            background: var(--abyss-gold);
+            border-color: var(--abyss-gold);
+            box-shadow: 0 0 15px var(--abyss-gold);
+            position: relative;
+        }
+
+        .task-check:checked::after {
+            content: '✓';
+            color: var(--abyss-black);
+            font-size: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .task-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-title {
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .important-badge {
+            background: var(--abyss-cursed);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+
+        .task-depth {
+            background: var(--abyss-deep);
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .task-date {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .task-date.urgent {
+            color: var(--abyss-cursed);
+            font-weight: bold;
+        }
+
+        .delete-task {
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 8px;
+            transition: color 0.3s;
+            flex-shrink: 0;
+        }
+
+        .delete-task:active {
+            color: var(--abyss-cursed);
+        }
+
+       
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--abyss-panel);
+            border: 2px solid var(--abyss-mid);
+            border-radius: 30px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: descend 0.5s ease-out;
+            box-shadow: var(--shadow-heavy);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal-content h2 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--abyss-deep);
+            border: 1px solid var(--abyss-mid);
+            border-radius: 16px;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--abyss-glow);
+            box-shadow: var(--border-glow);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-group input {
+            width: auto;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 14px;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:active {
+            transform: scale(0.96);
+        }
+
+        .modal-btn.primary {
+            background: var(--abyss-mid);
+            color: var(--text-primary);
+            border: 1px solid var(--abyss-glow);
+        }
+
+        .modal-btn.secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--text-secondary);
+        }
+
+       
+        .reminders-section {
+            padding: 20px;
+        }
+
+        .reminder-card {
+            background: var(--abyss-card);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 6px solid var(--abyss-glow);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .reminder-card:active {
+            transform: scale(0.98);
+        }
+
+        .reminder-card.important {
+            border-left-color: var(--abyss-cursed);
+        }
+
+        .reminder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .reminder-title {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .reminder-date {
+            color: var(--abyss-glow);
+            font-size: 0.9rem;
+        }
+
+        .reminder-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .reminder-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .reminder-depth {
+            background: var(--abyss-deep);
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: var(--text-secondary);
+        }
+
+       
+
+        .stats-section {
+            padding: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--abyss-card);
+            border-radius: 20px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid var(--abyss-mid);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--abyss-glow);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        
+
+        .bottom-nav {
+            display: none;
+            background: rgba(5, 15, 25, 0.98);
+            backdrop-filter: blur(15px);
+            padding: 8px 12px;
+            justify-content: space-around;
+            border-top: 1px solid var(--abyss-mid);
+            margin-top: 8px;
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            z-index: 20;
+            padding-bottom: env(safe-area-inset-bottom, 8px);
+        }
+
+        .nav-item {
+            color: var(--text-secondary);
+            text-align: center;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 30px;
+            flex: 1;
+            max-width: 80px;
+        }
+
+        .nav-item.active {
+            color: var(--abyss-glow);
+            background: rgba(127, 180, 192, 0.1);
+        }
+
+        .nav-item:active {
+            background: rgba(127, 180, 192, 0.2);
+        }
+
+        .nav-item span {
+            font-size: 1.3rem;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+      
+        @media (max-width: 600px) {
+            body {
+                padding: 0;
+                background-attachment: scroll;
+            }
+
+            .app-container {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                min-height: 100vh;
+                backdrop-filter: blur(10px);
+                margin: 0;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .title-section h1 {
+                font-size: 1.2rem;
+            }
+
+            .level-badge {
+                align-self: flex-start;
+            }
+
+            .layer-card {
+                padding: 12px;
+            }
+
+            .layer-depth {
+                font-size: 1.3rem;
+                min-width: 35px;
+            }
+
+            .bottom-nav {
+                display: flex;
+            }
+
+            .page-navigation {
+                padding: 12px 16px 0;
+            }
+
+            .page-nav-item {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .logo-container {
+                width: 120px;
+                height: 120px;
+            }
+
+            .modal-content {
+                padding: 20px;
+                border-radius: 24px;
+            }
+
+            .task-meta {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .reminder-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .layer-card {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .layer-depth {
+                min-width: 100%;
+                text-align: left;
+            }
+
+            .page-nav-item {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+
+            .modal-buttons {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+            }
+        }
+
+        @supports (padding: max(0px)) {
+            .app-container {
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+            
+            .bottom-nav {
+                padding-bottom: max(8px, env(safe-area-inset-bottom));
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--abyss-deep);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--abyss-mid);
+            border-radius: 20px;
+            border: 1px solid var(--abyss-glow);
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="logo-container">
+                
+                <img src="logo-abyss p.jpg" alt="Abyss Planner Logo" class="logo-image" id="loadingLogo">
+                <div class="logo-fallback" id="logoFallback">⚫</div>
+            </div>
+            <div class="loading-title">ABYSS PLANNER</div>
+            <div class="loading-subtitle">"Descent into Knowledge"</div>
+            <div class="loader"></div>
+            <div class="loading-progress">
+                <div class="loading-progress-bar" id="loadingProgressBar"></div>
+            </div>
+            <div style="color: var(--text-secondary); margin-top: 20px; font-size: 0.9rem;" id="loadingText">
+                Descendiendo al 1° Capa...
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="app-container">
+        <header class="abyss-header">
+            <div class="header-top">
+                <div class="title-section">
+                    <span>⬇️</span>
+                    <h1>ABYSS PLANNER</h1>
+                </div>
+                <div class="level-badge">
+                    <span class="level-number" id="levelDisplay">1</span>
+                    <span class="level-label">/ 7 CAPAS</span>
+                </div>
+            </div>
+        </header>
+
+
+
+        <div class="page-navigation">
+            <div class="page-nav-item active" onclick="changePage('abyss')">
+                <span>🌑</span> El Abismo
+            </div>
+            <div class="page-nav-item" onclick="changePage('tasks')">
+                <span>📜</span> Reliquias
+            </div>
+            <div class="page-nav-item" onclick="changePage('reminders')">
+                <span>⚠️</span> Avisos
+            </div>
+            <div class="page-nav-item" onclick="changePage('stats')">
+                <span>📊</span> Descenso
+            </div>
+        </div>
+
+        
+
+        <div class="notification-area" id="notificationArea">
+            <div class="notification" id="notification" style="display: none;">
+                <div class="notification-icon">📜</div>
+                <div class="notification-content">
+                    <div class="notification-title" id="notificationTitle">Bienvenido</div>
+                    <div class="notification-message" id="notificationMessage">Has comenzado tu descenso</div>
+                </div>
+                <button class="notification-close" onclick="hideNotification()">✕</button>
+            </div>
+        </div>
+
+        <div id="page-abyss" class="page active-page">
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span>PROGRESO DEL DESCENSO</span>
+                    <span id="progressPercentage">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="mainProgressBar" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="layers-system">
+                <div class="layers-title">
+                    <span>🌀</span> LAS 7 CAPAS DEL ABISMO
+                </div>
+                <div class="layers-grid" id="layersContainer"></div>
+            </div>
+        </div>
+
+        <div id="page-tasks" class="page">
+            <div class="tasks-section">
+                <div class="tasks-header">
+                    <h3>📜 RELIQUIAS (TAREAS)</h3>
+                    <button class="add-task-btn" onclick="openTaskModal()">+</button>
+                </div>
+                <ul class="task-list" id="taskList"></ul>
+            </div>
+        </div>
+
+        <div id="page-reminders" class="page">
+            <div class="reminders-section">
+                <div class="tasks-header">
+                    <h3>⚠️ AVISOS IMPORTANTES</h3>
+                    <button class="add-task-btn" onclick="openReminderModal()">+</button>
+                </div>
+                <div id="remindersList"></div>
+            </div>
+        </div>
+
+        <div id="page-stats" class="page">
+            <div class="stats-section">
+                <h3 style="color: var(--text-primary); margin-bottom: 20px;">📊 PROGRESO DEL DESCENSO</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTasksCompleted">0</div>
+                        <div class="stat-label">Reliquias Obtenidas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTotalTasks">0</div>
+                        <div class="stat-label">Total Reliquias</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statImportantTasks">0</div>
+                        <div class="stat-label">Avisos Importantes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statCurrentLayer">1</div>
+                        <div class="stat-label">Capa Actual</div>
+                    </div>
+                </div>
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <span>EFICIENCIA DEL DESCENSO</span>
+                        <span id="statEfficiency">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="efficiencyBar" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="modal" id="taskModal">
+            <div class="modal-content">
+                <h2><span>📜</span> Nueva Reliquia</h2>
+                <div class="form-group">
+                    <label>Título de la tarea</label>
+                    <input type="text" id="taskTitle" placeholder="Ej: Estudio de la maldición...">
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="taskDescription" placeholder="Detalles de la tarea..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Capa (Nivel)</label>
+                    <select id="taskLayer">
+                        <option value="Capa 1">1° Capa - Frescor</option>
+                        <option value="Capa 2">2° Capa - Tentación</option>
+                        <option value="Capa 3">3° Capa - Gran Abismo</option>
+                        <option value="Capa 4">4° Capa - Buscadores</option>
+                        <option value="Capa 5">5° Capa - Vacío</option>
+                        <option value="Capa 6">6° Capa - Fin</option>
+                        <option value="Capa 7">7° Capa - Fondo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fecha límite</label>
+                    <input type="date" id="taskDate">
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="taskImportant">
+                    <label>⚠️ Aviso importante (examen/entrega)</label>
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-btn primary" onclick="addTask()">Agregar</button>
+                    <button class="modal-btn secondary" onclick="closeTaskModal()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="reminderModal">
+            <div class="modal-content">
+                <h2><span>⚠️</span> Nuevo Aviso Importante</h2>
+                <div class="form-group">
+                    <label>Título del aviso</label>
+                    <input type="text" id="reminderTitle" placeholder="Ej: Examen final...">
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="reminderDescription" placeholder="Detalles importantes..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" id="reminderDate">
+                </div>
+                <div class="form-group">
+                    <label>Capa relacionada</label>
+                    <select id="reminderLayer">
+                        <option value="Capa 1">1° Capa - Frescor</option>
+                        <option value="Capa 2">2° Capa - Tentación</option>
+                        <option value="Capa 3">3° Capa - Gran Abismo</option>
+                        <option value="Capa 4">4° Capa - Buscadores</option>
+                        <option value="Capa 5">5° Capa - Vacío</option>
+                        <option value="Capa 6">6° Capa - Fin</option>
+                        <option value="Capa 7">7° Capa - Fondo</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-btn primary" onclick="addReminder()">Agregar</button>
+                    <button class="modal-btn secondary" onclick="closeReminderModal()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="changePage('abyss')">
+                <span>🌑</span>
+                <div>Abismo</div>
+            </div>
+            <div class="nav-item" onclick="changePage('tasks')">
+                <span>📜</span>
+                <div>Reliquias</div>
+            </div>
+            <div class="nav-item" onclick="changePage('reminders')">
+                <span>⚠️</span>
+                <div>Avisos</div>
+            </div>
+            <div class="nav-item" onclick="changePage('stats')">
+                <span>📊</span>
+                <div>Stats</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+       
+        const BACKGROUND_IMAGE = 'fondo-pantalla.jpeg'; 
+        const LOGO_IMAGE = 'logo-abyss p.jpg'; 
+        
+        document.body.style.backgroundImage = `url('${BACKGROUND_IMAGE}')`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundAttachment = 'fixed';
+
+        
+        const loadingLogo = document.getElementById('loadingLogo');
+        const logoFallback = document.getElementById('logoFallback');
+        
+        
+        loadingLogo.src = LOGO_IMAGE;
+        
+        
+        loadingLogo.onerror = function() {
+            console.log('Logo no encontrado, mostrando fallback');
+            this.style.display = 'none';
+            logoFallback.style.display = 'block';
+        };
+
+        
+        loadingLogo.onload = function() {
+            logoFallback.style.display = 'none';
+        };
+
+        let currentLevel = 1;
+        const totalLevels = 7;
+        
+        const layers = [
+            { depth: 1, name: '1° Capa: Frescor', description: 'Conocimientos básicos. La luz aún llega.', completed: true, current: false, tasksCompleted: 0, totalTasks: 3 },
+            { depth: 2, name: '2° Capa: Tentación', description: 'Desafíos intermedios. El abismo susurra.', completed: false, current: true, tasksCompleted: 1, totalTasks: 4 },
+            { depth: 3, name: '3° Capa: Gran Abismo', description: 'Conocimiento avanzado. La presión aumenta.', completed: false, current: false, tasksCompleted: 0, totalTasks: 4 },
+            { depth: 4, name: '4° Capa: Buscadores', description: 'Especialización. El valor brilla.', completed: false, current: false, tasksCompleted: 0, totalTasks: 5 },
+            { depth: 5, name: '5° Capa: Vacío', description: 'Maestría. La maldición se siente.', completed: false, current: false, tasksCompleted: 0, totalTasks: 5 },
+            { depth: 6, name: '6° Capa: Fin', description: 'Experto. El altar del conocimiento.', completed: false, current: false, tasksCompleted: 0, totalTasks: 6 },
+            { depth: 7, name: '7° Capa: Fondo', description: 'Sabiduría absoluta. El último paso.', completed: false, current: false, tasksCompleted: 0, totalTasks: 7 }
+        ];
+
+        let tasks = [
+            { id: 1, title: 'Estudiar teoría del abismo', description: 'Matemáticas - Capítulo 1', depth: 'Capa 1', date: '2024-03-20', important: false, completed: false },
+            { id: 2, title: 'Preparar equipo de descenso', description: 'Física - Práctica de laboratorio', depth: 'Capa 2', date: '2024-03-25', important: true, completed: false },
+            { id: 3, title: 'Analizar reliquias', description: 'Historia - Trabajo de investigación', depth: 'Capa 2', date: '2024-03-22', important: false, completed: true },
+            { id: 4, title: 'EXAMEN FINAL', description: 'Soportar la maldición del abismo', depth: 'Capa 3', date: '2024-03-30', important: true, completed: false }
+        ];
+
+        let reminders = [
+            { id: 1, title: '📝 Entrega de trabajo final', description: 'Investigación sobre las maldiciones del abismo', date: '2024-03-28', depth: 'Capa 3', important: true },
+            { id: 2, title: '🔬 Práctica de laboratorio', description: 'Análisis de reliquias - Traer equipo', date: '2024-03-25', depth: 'Capa 2', important: true },
+            { id: 3, title: '📚 Examen parcial', description: 'Teoría del descenso - Capas 1-3', date: '2024-03-30', depth: 'Capa 3', important: true }
+        ];
+
+       
+        const loadingScreen = document.getElementById('loadingScreen');
+        const loadingBar = document.getElementById('loadingProgressBar');
+        const loadingText = document.getElementById('loadingText');
+        
+        let loadProgress = 0;
+        const loadInterval = setInterval(() => {
+            loadProgress += Math.random() * 15;
+            if (loadProgress >= 100) {
+                loadProgress = 100;
+                clearInterval(loadInterval);
+                loadingBar.style.width = '100%';
+                loadingText.innerText = '¡Bienvenido al Abismo!';
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                    showNotification('Descenso Iniciado', 'Has comenzado tu viaje por las 7 Capas');
+                    checkUrgentReminders();
+                }, 500);
+            }
+            loadingBar.style.width = loadProgress + '%';
+            
+            if (loadProgress < 30) loadingText.innerText = 'Descendiendo a la 1° Capa...';
+            else if (loadProgress < 60) loadingText.innerText = 'Atravesando la 2° Capa...';
+            else if (loadProgress < 90) loadingText.innerText = 'Soportando la maldición...';
+            else loadingText.innerText = 'Casi en el fondo...';
+        }, 200);
+
+        
+        function changePage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.querySelectorAll('.page-nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(`page-${page}`).classList.add('active-page');
+            
+            document.querySelectorAll('.page-nav-item').forEach(item => {
+                if(item.textContent.includes(page === 'abyss' ? 'Abismo' : 
+                    page === 'tasks' ? 'Reliquias' : 
+                    page === 'reminders' ? 'Avisos' : 'Descenso')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            document.querySelectorAll('.nav-item').forEach((item, index) => {
+                if((page === 'abyss' && index === 0) ||
+                   (page === 'tasks' && index === 1) ||
+                   (page === 'reminders' && index === 2) ||
+                   (page === 'stats' && index === 3)) {
+                    item.classList.add('active');
+                }
+            });
+
+            if(page === 'reminders') renderReminders();
+            if(page === 'stats') updateStats();
+        }
+
+        function renderLayers() {
+            const container = document.getElementById('layersContainer');
+            container.innerHTML = '';
+            
+            layers.forEach((layer, index) => {
+                const layerCard = document.createElement('div');
+                layerCard.className = `layer-card ${layer.completed ? 'completed' : ''} ${layer.current ? 'current' : ''}`;
+                layerCard.setAttribute('data-depth', layer.depth);
+                layerCard.onclick = () => selectLayer(layer.depth);
+                
+                layerCard.innerHTML = `
+                    <div class="layer-depth">${layer.depth}°</div>
+                    <div class="layer-info">
+                        <div class="layer-name">${layer.name}</div>
+                        <div class="layer-description">${layer.description}</div>
+                        <div style="font-size: 0.75rem; color: var(--abyss-glow); margin-top: 4px;">
+                            Progreso: ${layer.tasksCompleted}/${layer.totalTasks}
+                        </div>
+                    </div>
+                    <div class="layer-status">
+                        ${layer.completed ? '✅' : (layer.current ? '⬇️' : '⏳')}
+                    </div>
+                `;
+                
+                container.appendChild(layerCard);
+            });
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+            
+            tasks.sort((a, b) => {
+                if(a.important && !b.important) return -1;
+                if(!a.important && b.important) return 1;
+                return new Date(a.date) - new Date(b.date);
+            });
+            
+            tasks.forEach(task => {
+                const taskItem = document.createElement('li');
+                taskItem.className = `task-item ${task.important ? 'important' : ''}`;
+                
+                const today = new Date();
+                const taskDate = new Date(task.date);
+                const daysUntil = Math.ceil((taskDate - today) / (1000 * 60 * 60 * 24));
+                
+                taskItem.innerHTML = `
+                    <input type="checkbox" class="task-check" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})">
+                    <div class="task-content">
+                        <div class="task-title">
+                            ${task.title}
+                            ${task.important ? '<span class="important-badge">⚠️ IMPORTANTE</span>' : ''}
+                        </div>
+                        <div class="task-description" style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 4px;">
+                            ${task.description}
+                        </div>
+                        <div class="task-meta">
+                            <span class="task-depth">${task.depth}</span>
+                            <span class="task-date ${daysUntil <= 3 ? 'urgent' : ''}">
+                                📅 ${formatDate(task.date)} 
+                                ${daysUntil > 0 ? `(${daysUntil} días)` : daysUntil === 0 ? '(¡Hoy!)' : '(¡Vencido!)'}
+                            </span>
+                        </div>
+                    </div>
+                    <span class="delete-task" onclick="deleteTask(${task.id})">✕</span>
+                `;
+                
+                taskList.appendChild(taskItem);
+            });
+            
+            updateLayerProgress();
+            updateStats();
+        }
+
+        function renderReminders() {
+            const remindersList = document.getElementById('remindersList');
+            remindersList.innerHTML = '';
+            
+            reminders.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            reminders.forEach(reminder => {
+                const today = new Date();
+                const reminderDate = new Date(reminder.date);
+                const daysUntil = Math.ceil((reminderDate - today) / (1000 * 60 * 60 * 24));
+                
+                const reminderCard = document.createElement('div');
+                reminderCard.className = `reminder-card ${daysUntil <= 3 ? 'important' : ''}`;
+                reminderCard.innerHTML = `
+                    <div class="reminder-header">
+                        <span class="reminder-title">${reminder.title}</span>
+                        <span class="reminder-date">📅 ${formatDate(reminder.date)}</span>
+                    </div>
+                    <div class="reminder-description">${reminder.description}</div>
+                    <div class="reminder-meta">
+                        <span class="reminder-depth">${reminder.depth}</span>
+                        <span style="color: ${daysUntil <= 3 ? 'var(--abyss-cursed)' : 'var(--text-secondary)'}">
+                            ${daysUntil > 0 ? `${daysUntil} días restantes` : daysUntil === 0 ? '¡Hoy!' : '¡Vencido!'}
+                        </span>
+                    </div>
+                `;
+                reminderCard.onclick = () => showNotification('Recordatorio', reminder.title);
+                remindersList.appendChild(reminderCard);
+            });
+        }
+
+        function toggleTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = !task.completed;
+                renderTasks();
+                updateProgress();
+                
+                if (task.completed) {
+                    showNotification('✨ Reliquia obtenida', `Has completado: ${task.title}`);
+                    checkLayerCompletion(task.depth);
+                }
+            }
+        }
+
+        function deleteTask(taskId) {
+            tasks = tasks.filter(t => t.id !== taskId);
+            renderTasks();
+            showNotification('🗑️ Reliquia perdida', 'La tarea ha sido eliminada');
+        }
+
+        function addTask() {
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            const layer = document.getElementById('taskLayer').value;
+            const date = document.getElementById('taskDate').value;
+            const important = document.getElementById('taskImportant').checked;
+            
+            if(!title || !date) {
+                showNotification('❌ Error', 'Completa los campos obligatorios');
+                return;
+            }
+            
+            const newTask = {
+                id: tasks.length + reminders.length + 1,
+                title: title,
+                description: description || 'Sin descripción',
+                depth: layer,
+                date: date,
+                important: important,
+                completed: false
+            };
+            
+            tasks.push(newTask);
+            
+            if(important) {
+                reminders.push({
+                    id: reminders.length + 1,
+                    title: title,
+                    description: description || 'Aviso importante',
+                    date: date,
+                    depth: layer,
+                    important: true
+                });
+            }
+            
+            renderTasks();
+            renderReminders();
+            closeTaskModal();
+            showNotification('✅ Nueva reliquia', 'Tarea agregada al abismo');
+            
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskDescription').value = '';
+            document.getElementById('taskDate').value = '';
+            document.getElementById('taskImportant').checked = false;
+        }
+
+        function addReminder() {
+            const title = document.getElementById('reminderTitle').value;
+            const description = document.getElementById('reminderDescription').value;
+            const date = document.getElementById('reminderDate').value;
+            const layer = document.getElementById('reminderLayer').value;
+            
+            if(!title || !date) {
+                showNotification('❌ Error', 'Completa los campos obligatorios');
+                return;
+            }
+            
+            const newReminder = {
+                id: reminders.length + 1,
+                title: title,
+                description: description || 'Aviso importante',
+                date: date,
+                depth: layer,
+                important: true
+            };
+            
+            reminders.push(newReminder);
+            
+            tasks.push({
+                id: tasks.length + 1,
+                title: title,
+                description: description || 'Aviso importante',
+                depth: layer,
+                date: date,
+                important: true,
+                completed: false
+            });
+            
+            renderReminders();
+            renderTasks();
+            closeReminderModal();
+            showNotification('⚠️ Nuevo aviso', 'Recordatorio agregado');
+            
+            document.getElementById('reminderTitle').value = '';
+            document.getElementById('reminderDescription').value = '';
+            document.getElementById('reminderDate').value = '';
+        }
+
+        function updateProgress() {
+            const completedTasks = tasks.filter(t => t.completed).length;
+            const totalTasks = tasks.length;
+            const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+            
+            document.getElementById('mainProgressBar').style.width = progress + '%';
+            document.getElementById('progressPercentage').innerText = progress + '%';
+            
+            updateLayerProgress();
+        }
+
+        function updateLayerProgress() {
+            layers.forEach((layer, index) => {
+                const layerName = `Capa ${index + 1}`;
+                const layerTasks = tasks.filter(t => t.depth === layerName);
+                const completedInLayer = layerTasks.filter(t => t.completed).length;
+                
+                layers[index].tasksCompleted = completedInLayer;
+                layers[index].totalTasks = layerTasks.length || (index + 2);
+            });
+            
+            renderLayers();
+        }
+
+        function checkLayerCompletion(depth) {
+            const layerIndex = parseInt(depth.split(' ')[1]) - 1;
+            const layer = layers[layerIndex];
+            
+            if(layer && !layer.completed) {
+                const allTasksCompleted = tasks
+                    .filter(t => t.depth === depth)
+                    .every(t => t.completed);
+                
+                if(allTasksCompleted && layerIndex === currentLevel - 1) {
+                    advanceLevel();
+                }
+            }
+        }
+
+        function advanceLevel() {
+            if(currentLevel < totalLevels) {
+                currentLevel++;
+                document.getElementById('levelDisplay').innerText = currentLevel;
+                document.getElementById('statCurrentLayer').innerText = currentLevel;
+                
+                layers.forEach((layer, index) => {
+                    layer.completed = index < currentLevel - 1;
+                    layer.current = index === currentLevel - 1;
+                });
+                
+                renderLayers();
+                showNotification('⬇️ DESCENSO EXITOSO', `Has alcanzado la ${currentLevel}° Capa`);
+                checkUrgentReminders();
+            }
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('es-ES', options);
+        }
+
+        function checkUrgentReminders() {
+            const today = new Date();
+            reminders.forEach(reminder => {
+                const reminderDate = new Date(reminder.date);
+                const daysUntil = Math.ceil((reminderDate - today) / (1000 * 60 * 60 * 24));
+                
+                if(daysUntil <= 3 && daysUntil >= 0) {
+                    showNotification('⚠️ AVISO URGENTE', `${reminder.title} - ${daysUntil === 0 ? '¡Hoy!' : `${daysUntil} días`}`);
+                }
+            });
+        }
+
+        function updateStats() {
+            const completedTasks = tasks.filter(t => t.completed).length;
+            const totalTasks = tasks.length;
+            const importantTasks = tasks.filter(t => t.important).length;
+            const efficiency = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+            
+            document.getElementById('statTasksCompleted').innerText = completedTasks;
+            document.getElementById('statTotalTasks').innerText = totalTasks;
+            document.getElementById('statImportantTasks').innerText = importantTasks;
+            document.getElementById('statEfficiency').innerText = efficiency + '%';
+            document.getElementById('efficiencyBar').style.width = efficiency + '%';
+        }
+
+        function openTaskModal() {
+            document.getElementById('taskModal').classList.add('active');
+        }
+
+        function closeTaskModal() {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+
+        function openReminderModal() {
+            document.getElementById('reminderModal').classList.add('active');
+        }
+
+        function closeReminderModal() {
+            document.getElementById('reminderModal').classList.remove('active');
+        }
+
+        function showNotification(title, message) {
+            const notification = document.getElementById('notification');
+            document.getElementById('notificationTitle').innerText = title;
+            document.getElementById('notificationMessage').innerText = message;
+            notification.style.display = 'flex';
+            
+            setTimeout(() => {
+                hideNotification();
+            }, 5000);
+        }
+
+        function hideNotification() {
+            document.getElementById('notification').style.display = 'none';
+        }
+
+        function selectLayer(depth) {
+            showNotification('Capa seleccionada', `Explorando la ${depth}`);
+            changePage('tasks');
+        }
+
+       
+        renderLayers();
+        renderTasks();
+        renderReminders();
+        updateProgress();
+        updateStats();
+
+        
+        setInterval(() => {
+            checkUrgentReminders();
+            updateStats();
+        }, 60000);
+
+       
+        if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+            Notification.requestPermission();
+        }
+    </script>
+</body>
+</html>
